@@ -79,8 +79,8 @@ static void do_stringstream(int index)
 {
 	size_t sum = 0;
 	stringstream buf;
-	locale loc("C");
-	buf.imbue(loc);
+	//locale loc("C");
+	//buf.imbue(loc);
 	for (int i = 0; i < kIterations; ++i) {
 		buf.seekp(0);
 		buf << (i + g_Global);
@@ -115,9 +115,9 @@ static void do_format_to(int index)
 {
 	size_t sum = 0;
 	char buf[100];
-	locale loc("C");
+	//locale loc("C");
 	for (int i = 0; i < kIterations; ++i) {
-		const auto res = format_to_n(buf, 100, loc, "{}", i + g_Global);
+		const auto res = format_to_n(buf, 100, /*loc,*/ "{}", i + g_Global);
 		sum += (res.out - buf) + buf[0];
 	}
 	if (sum != kExpect) {
@@ -127,6 +127,7 @@ static void do_format_to(int index)
 }
 #endif
 
+#ifndef __linux__
 static void do_itoa(int index)
 {
 	size_t sum = 0;
@@ -140,6 +141,7 @@ static void do_itoa(int index)
 		exit(1);
 	}	
 }
+#endif
 
 static void do_to_chars(int index)
 {
@@ -194,7 +196,9 @@ int main(int argc, const char**)
 #if HAS_FORMAT
 	do_test_with_func("format_to_n", do_format_to);
 #endif
+#ifndef __linux__
 	do_test_with_func("itoa", do_itoa);
+#endif
 	do_test_with_func("to_chars", do_to_chars);
 	return 0;
 }
