@@ -18,3 +18,37 @@ OpenBSD does not try to do any thread safety at all in localeconv:
 
 glibc for reference: https://github.com/bminor/glibc/blob/master/locale/localeconv.c
 
+------------------
+Windows:
+* stringstream:
+	1 thread 477ms
+		try_get_function 112
+		std::num_put<>::_Iput 61
+		output_processor<>::process 45
+		common_vsnprintf 20
+		do_stringstream 44
+	8 thread 15006ms
+		RtlpEnterCriticalSectionContended 7279
+		KiExitDispatcher 2758
+		[total] std::use_facet 12732
+			spends all the time in some mutex
+* format_to:
+	1 thread 1136ms
+		_Fmt_codec constructor 1053
+			__std_get_cvt 1053
+				GetCPInfoExW 1015
+					GetStringTableEntry 998
+						FindResourceExW 577
+							LdrpLoadResourceFromAlternativeModule 510
+						LoadResource 321
+							LdrpAccessResourceDataNoMultipleLanguage 306
+	8 thread 4906ms
+		_Fmt_codec constructor 4811
+			__std_get_cvt 4811
+				GetCPInfoExW 4753
+					GetStringTableEntry 4661
+						FindResourceExW 2339
+							...MiLockVadShared 708
+							...MiUnlockAndDereferenceVadShared  275
+							...LOCK_ADDRESS_SPACE_SHARED 256
+							...UNLOCK_ADDRESS_SPACE_SHARED 99
