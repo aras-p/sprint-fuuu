@@ -38,6 +38,7 @@ static void do_snprintf(int index)
 	}
 }
 
+#ifndef __linux__
 static void do_snprintf_l(int index)
 {
 	size_t sum = 0;
@@ -55,6 +56,7 @@ static void do_snprintf_l(int index)
 		exit(1);
 	}
 }
+#endif
 
 static void do_stb_snprintf(int index)
 {
@@ -139,7 +141,7 @@ static void do_test_with_func(const char* name, thread_func func)
 		printf("  %.1fms\n", msf);
 		times.push_back(msf);
 	}
-	for (int i = 0; i < times.size(); ++i)
+	for (size_t i = 0; i < times.size(); ++i)
 	{
 		printf("%.1f\n", times[i]);
 	}
@@ -149,7 +151,9 @@ int main(int argc, const char**)
 {
 	g_Global = argc;
 	do_test_with_func("snprintf", do_snprintf);
+#ifndef __linux__
 	do_test_with_func("snprintf_l", do_snprintf_l);
+#endif
 	do_test_with_func("stb_snprintf", do_stb_snprintf);
 	do_test_with_func("stringstream", do_stringstream);
 #if HAS_FORMAT
