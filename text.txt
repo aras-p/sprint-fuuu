@@ -1,0 +1,20 @@
+shot1
+
+snprintf -> _vsnprintf -> __v2printf -> __vfprintf -> localeconv_l
+https://github.com/apple-oss-distributions/Libc/blob/d0bbfb749/locale/FreeBSD/localeconv.c
+	XL_LOCK(loc);
+		#define XL_LOCK(x)	os_unfair_lock_lock(&(x)->__lock);
+
+Was changed from a double-check "has changed?" with a lock inside into just a lock,
+on 2022 Feb 7 (Libc-1506.40.4)
+	https://github.com/apple-oss-distributions/Libc/commit/d0bbfb749a6116512756d9c65922d725e9863495#diff-083c7c975ba1dc50e8c14c44653f54f61b1a8cda32bd596d0fb570211e54fdccR121
+
+FreeBSD does not have a mutex lock in there btw, but on 2021 Sep 17 it did add some atomic acq/releases
+ https://github.com/freebsd/freebsd-src/commit/7eb138a9e5363
+
+OpenBSD does not try to do any thread safety at all in localeconv:
+ https://github.com/openbsd/src/blob/master/lib/libc/locale/localeconv.c
+
+
+glibc for reference: https://github.com/bminor/glibc/blob/master/locale/localeconv.c
+
