@@ -127,7 +127,7 @@ static void do_format_to(int index)
 }
 #endif
 
-#ifndef __linux__
+#ifdef _MSC_VER
 static void do_itoa(int index)
 {
 	size_t sum = 0;
@@ -196,7 +196,7 @@ int main(int argc, const char**)
 #if HAS_FORMAT
 	do_test_with_func("format_to_n", do_format_to);
 #endif
-#ifndef __linux__
+#ifdef _MSC_VER
 	do_test_with_func("itoa", do_itoa);
 #endif
 	do_test_with_func("to_chars", do_to_chars);
