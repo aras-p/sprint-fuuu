@@ -8,7 +8,7 @@
 #include <charconv>
 #include <sstream>
 
-#define HAS_FORMAT (__cplusplus >= 202110L)
+#define HAS_FORMAT (__cplusplus >= 202004L)
 #if HAS_FORMAT
 #include <format>
 #endif
@@ -95,7 +95,7 @@ static void do_format_to(int index)
 	char buf[100];
 	for (int i = 0; i < kIterations; ++i) {
 		const auto res = format_to_n(buf, 100, "{}", i + g_Global);
-		sum += (res - buf) + buf[0];
+		sum += (res.out - buf) + buf[0];
 	}
 	if (sum != kExpect) {
 		printf("    sum was supposed to be %zi, but got %zi in thread of format_to_n %i!\n", kExpect, sum, index);
