@@ -8,6 +8,9 @@
 #include <charconv>
 #include <sstream>
 
+#define FMT_HEADER_ONLY
+#include "fmt/format.h"
+
 #define HAS_FORMAT (__cplusplus >= 202004L)
 #if HAS_FORMAT
 #include <format>
@@ -90,6 +93,21 @@ static void do_stringstream(int index)
 	}
 }
 
+static void do_fmt(int index)
+{
+	size_t sum = 0;
+	fmt::memory_buffer buf;
+	for (int i = 0; i < kIterations; ++i) {
+		buf.clear();
+		fmt::format_to(fmt::appender(buf), "{}", i + g_Global);
+		sum += buf.size() + buf[0];
+	}
+	if (sum != kExpect) {
+		printf("    sum was supposed to be %zi, but got %zi in thread of fmt %i!\n", kExpect, sum, index);
+		exit(1);
+	}
+}
+
 #if HAS_FORMAT
 static void do_format_to(int index)
 {
@@ -106,6 +124,19 @@ static void do_format_to(int index)
 }
 #endif
 
+static void do_itoa(int index)
+{
+	size_t sum = 0;
+	char buf[100];
+	for (int i = 0; i < kIterations; ++i) {
+		_itoa(i + g_Global, buf, 10);
+		sum += strlen(buf) + buf[0];
+	}
+	if (sum != kExpect) {
+		printf("    sum was supposed to be %zi, but got %zi in thread %i of itoa!\n", kExpect, sum, index);
+		exit(1);
+	}	
+}
 
 static void do_to_chars(int index)
 {
@@ -156,9 +187,11 @@ int main(int argc, const char**)
 #endif
 	do_test_with_func("stb_snprintf", do_stb_snprintf);
 	do_test_with_func("stringstream", do_stringstream);
+	do_test_with_func("fmt", do_fmt);
 #if HAS_FORMAT
 	do_test_with_func("format_to_n", do_format_to);
 #endif
+	do_test_with_func("itoa", do_itoa);
 	do_test_with_func("to_chars", do_to_chars);
 	return 0;
 }
