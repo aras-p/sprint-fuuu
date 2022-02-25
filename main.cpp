@@ -79,6 +79,8 @@ static void do_stringstream(int index)
 {
 	size_t sum = 0;
 	stringstream buf;
+	locale loc("C");
+	buf.imbue(loc);
 	for (int i = 0; i < kIterations; ++i) {
 		buf.seekp(0);
 		buf << (i + g_Global);
@@ -113,8 +115,9 @@ static void do_format_to(int index)
 {
 	size_t sum = 0;
 	char buf[100];
+	locale loc("C");
 	for (int i = 0; i < kIterations; ++i) {
-		const auto res = format_to_n(buf, 100, "{}", i + g_Global);
+		const auto res = format_to_n(buf, 100, loc, "{}", i + g_Global);
 		sum += (res.out - buf) + buf[0];
 	}
 	if (sum != kExpect) {
