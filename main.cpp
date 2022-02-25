@@ -1,3 +1,5 @@
+#define _CRT_SECURE_NO_WARNINGS
+
 #include <chrono>
 #include <stdio.h>
 #include <string.h>
@@ -41,7 +43,11 @@ static void do_snprintf_l(int index)
 	size_t sum = 0;
 	char buf[100];
 	for (int i = 0; i < kIterations; ++i) {
+		#if defined(_MSC_VER)
+		_snprintf_l(buf, 100, "%i", NULL, i + g_Global);
+		#else
 		snprintf_l(buf, 100, NULL, "%i", i + g_Global);
+		#endif
 		sum += strlen(buf) + buf[0];
 	}
 	if (sum != kExpect) {
@@ -120,7 +126,7 @@ static void do_test_with_func(const char* name, thread_func func)
 	printf("==== Test %s:\n", name);
 	vector<float> times;
 	for (int i = 1; i <= kMaxThreads; ++i) {
-		printf("%i threads...\n", i);
+		printf("%i threads... ", i);
 		vector<thread> threads;
 		auto t0 = chrono::steady_clock::now();
 		for (int j = 0; j < i; ++j)
@@ -130,17 +136,16 @@ static void do_test_with_func(const char* name, thread_func func)
 		auto t1 = chrono::steady_clock::now();
 		chrono::duration<float, milli> ms = t1 - t0;
 		float msf = ms.count();
-		printf("  took %.1fms\n", msf);
+		printf("  %.1fms\n", msf);
 		times.push_back(msf);
 	}
-	printf("Threads;TimeMS\n");
 	for (int i = 0; i < times.size(); ++i)
 	{
-		printf("%i;%.1f\n", i+1, times[i]);
+		printf("%.1f\n", times[i]);
 	}
 }
 
-int main(int argc, const char** argv)
+int main(int argc, const char**)
 {
 	g_Global = argc;
 	do_test_with_func("snprintf", do_snprintf);
